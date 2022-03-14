@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -32,74 +33,154 @@ li {
     display: none;
 }
 
+
 /* ------------------------------------ */
+
+
 /* Style du content */
+
 #body-content {
-    background: rgb(31,31,37);
-    background: linear-gradient(120deg, rgba(31,31,37,1) 0%, rgba(83,83,94,1) 36%, rgba(141,144,148,1) 100%);
-}
-#content {
-    border-radius: 10px;
+    background: rgb(31, 31, 37);
+    background: linear-gradient(120deg, rgba(31, 31, 37, 1) 0%, rgba(83, 83, 94, 1) 36%, rgba(141, 144, 148, 1) 100%);
 }
 
+#content {
+    border-radius: 0 0 15px 15px;
+    height: 60%;
+}
 
 /* ------------------------------------ */
+.onglet-actif::before {
+    background-color: #6998AB;
+}
+/* ------------------------------------ */
+
 /* Style du choix d'onglet */
-.onglet {
+
+#onglet-ReelT,#onglet-Hist {
     color: #f0f0f0;
     font-weight: bold;
-
     width: 50%;
     height: 30px;
-
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     cursor: pointer;
 }
-.onglet:hover {
+
+#onglet-ReelT:hover, #onglet-Hist:hover {
     color: white;
 }
 
 #onglet-ReelT {
+    align-self: flex-end;
+    
+    display: flex;
+    justify-content: left;
+
     background-color: #406882;
-    border-radius: 10px 0 0 0;
+    border-radius: 15px 15px 0 0;
+    transition: height 0.2s;
 }
 #onglet-ReelT:hover {
     background-color: #6998AB;
+    height: 100%;
+}
+#onglet-ReelT span {
+    flex-grow: 1;
+    flex-shrink: 0;
+    margin-left: 20px;
 }
 
 #onglet-Hist {
+    align-self: flex-end;
+
+    display: flex;
+    justify-content: left;
+
     background-color: #A2B29F;
-    border-radius: 0 10px 0 0;
+    border-radius: 15px 15px 0 0;
+    transition: height 0.2s;
 }
 #onglet-Hist:hover {
     background-color: #BDD2B6;
+    height: 100%;
+}
+#onglet-Hist span {
+    flex-grow: 1;
+    flex-shrink: 0;
+    margin-right: 20px;
+}
+
+#nav-onglet {
+    height: 5%;
 }
 
 /* ------------------------------------ */
+#curved-corner-bottomright {
+    display: none;
+}
+
+#curved-corner-bottomleft, #curved-corner-bottomright {
+    width: 10px;
+    height: 10px;
+    overflow: hidden;
+    position: relative;
+    align-self: flex-end;
+    align-items: center;   
+}
+#curved-corner-bottomleft:before, #curved-corner-bottomright:before {
+    content: "";
+    display: block;
+    width: 200%;
+    height: 200%;
+    position: absolute;
+    border-radius: 50%;
+    bottom: 0;
+}
+
+#curved-corner-bottomleft:before {
+    left: 0;
+    box-shadow: -10px 10px 0 0 #6998AB;
+}
+#curved-corner-bottomright:before {
+    right: 0;
+    box-shadow: 10px 10px 0 0 #BDD2B6;
+}
+
+/* ------------------------------------ */
+
 
 /*  Pour le changement d'onglet 
     A voir pour le changer */
+
 section[role=tabpanel] {
     display: none;
 }
+
 section[role=tabpanel].active {
     display: flex;
     flex-direction: column;
-
 }
 
-/* ------------------------------------ */
-/* Les étoiles du favori */
 
 /* ------------------------------------ */
+
+
+/* Les étoiles du favori */
+
+
+/* ------------------------------------ */
+
+
 /* Changement de couleur suivant la température */
+
 #contentTemp section span {
     font-size: 50px;
     font-weight: bold;
 }
+
 .white {
     color: white;
 }

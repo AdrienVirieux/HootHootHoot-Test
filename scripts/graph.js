@@ -1,8 +1,7 @@
-
-
-// ------------------------------------------------------------------ //
-// ------------------------------------------------------------------ //
 // GRAPH-HISTORIQUE
+
+
+export let graph;
 
 // Source : https://stackoverflow.com/questions/1050720/adding-hours-to-javascript-date-object
 Date.prototype.addHours = function (h) {
@@ -11,7 +10,6 @@ Date.prototype.addHours = function (h) {
 }
 
 //
-let graph;
 export function initGraph() {
     let date = new Date().addHours(-24);
 
@@ -67,7 +65,7 @@ export function initGraph() {
     let tempIn = arraysCacheJSON['IN_TEMP'];
     let tempOut = arraysCacheJSON['OUT_TEMP'];
 
-    for (i = 0; i < Object.keys(tempIn['TEMP']).length; ++i) {
+    for (var i = 0; i < Object.keys(tempIn['TEMP']).length; ++i) {
         graph.data.datasets[0].data.push({ 'x': tempIn['TIME'][i], 'y': tempIn['TEMP'][i] });
         graph.data.datasets[1].data.push({ 'x': tempIn['TIME'][i], 'y': tempOut['TEMP'][i] });
     }

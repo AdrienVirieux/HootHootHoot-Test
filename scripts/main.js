@@ -1,18 +1,77 @@
-import { initGraph, updateGraph } from './graph.js'
+import { graph, initGraph, updateGraph } from './graph.js'
 
-// Les données sont gardées même après avoir recharger la page 
-// DONC TODO
-localStorage.setItem('TEMPERATURE-CACHE', localStorage.getItem('TEMPERATURE'));
-console.log(JSON.parse(localStorage.getItem('TEMPERATURE')));
 
+
+// Mise en place du Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+        .register('/service-worker.js')
+        .then(() => { console.log('Service Worker Registered'); })
+        .catch((error) => { console.log('Erreur : ' + error); });
+}
+
+// --------------------------------------------------------------------------------------------- //
+
+// Initialisation du LocalStorage lorsque l'on se rend sur l'app pour la première fois
+if (localStorage.getItem('TEMPERATURE') == null) {
+    initLocalStorage();
+}
+
+// Si jamais on a besoin d'utiliser le localStorage directement
+const temperatureLocalStorageJSON = JSON.parse(localStorage.getItem('TEMPERATURE'));
+localStorage.setItem('TEMPERATURE-CACHE', JSON.stringify(temperatureLocalStorageJSON)); // On n'est jamais trop prudent
+console.log('historique :', temperatureLocalStorageJSON);
+
+
+// --------------------------------------------------------------------------------------------- //
+
+// Avoir le jour d'aujourd'hui
+// Source : https://stackoverflow.com/questions/58531156/javascript-how-to-format-the-date-according-to-the-french-convention
+var options = { year: 'numeric', month: 'long', day: 'numeric' };
+var opt_weekday = { weekday: 'long' };
+var today = new Date();
+var weekday = toTitleCase(today.toLocaleDateString("fr-FR", opt_weekday));
+
+function toTitleCase(str) {
+    return str.replace(
+        /\w\S*/g,
+        function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }
+    );
+}
+var the_date = weekday + ' ' + today.toLocaleDateString("fr-FR", options);
+
+document.getElementById('titreTemp').innerText = the_date;
+
+
+
+// Définie une structure JSON vide, que l'on affecte au LocalStorage 'TEMPERATURE'
+function initLocalStorage() {
+    let structStorageJSON = {
+        'DATE': null,
+        'IN_TEMP': {
+            'MIN': null,
+            'MAX': null,
+            'TEMP': [],
+            'TIME': []
+        },
+        'OUT_TEMP': {
+            'MIN': null,
+            'MAX': null,
+            'TEMP': [],
+            'TIME': []
+        }
+    };
+    localStorage.setItem('TEMPERATURE', JSON.stringify(structStorageJSON));
+}
 
 // Fonctions implémentée
 function sideMenu() {
     let sideNav = document.getElementById('side-nav');
     if (sideNav.style.display == 'none') {
         sideNav.style.display = 'block';
-    }
-    else {
+    } else {
         sideNav.style.display = 'none';
     }
 }
@@ -24,10 +83,11 @@ var options = { year: 'numeric', month: 'long', day: 'numeric' };
 var opt_weekday = { weekday: 'long' };
 var today = new Date();
 var weekday = toTitleCase(today.toLocaleDateString("fr-FR", opt_weekday));
+
 function toTitleCase(str) {
     return str.replace(
         /\w\S*/g,
-        function (txt) {
+        function(txt) {
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         }
     );
@@ -41,16 +101,29 @@ document.getElementById('titreTemp').innerText = the_date;
 // ------------------------------------------------------------------ //
 // LISTENERS
 
-// Ajout de Listener pour changer d'onglet
-Array.from(document.querySelectorAll('#nav-onglet li, #nav-onglet span')).forEach(function (onglet) {
+// Listener pour le changement d'onglet
+Array.from(document.querySelectorAll('#nav-onglet li, #nav-onglet span, #nav-onglet div')).forEach(function(onglet) {
     onglet.addEventListener('click',
-        function (event) {
-            Array.from(document.querySelectorAll('.active')).forEach(function (elem_active) {
+        function(event) {
+            // Suppression de l'onglet actif
+            Array.from(document.querySelectorAll('.active')).forEach(function(elem_active) {
                 elem_active.removeAttribute('class');
             });
+            // Suppression du boutton d'onglet actif
+            Array.from(document.querySelectorAll('.onglet-actif')).forEach(function(elem_active) {
+                elem_active.removeAttribute('class');
+            });
+
+
             var elemEvent = event.target;
-            if (event.target.tagName == 'SPAN')
-                var elemEvent = event.target.parentNode;
+            if (event.target.tagName == 'SPAN') {
+                elemEvent = event.target.parentNode;
+            }
+            else if (event.target.tagName == 'DIV') {
+                elemEvent = event.target.parentNode;
+            }
+
+            elemEvent.setAttribute('class', 'onglet-actif');
             let element_a_id = elemEvent.getAttribute("value");
             document.getElementById(element_a_id).setAttribute('class', 'active');
 
@@ -60,11 +133,13 @@ Array.from(document.querySelectorAll('#nav-onglet li, #nav-onglet span')).forEac
     );
 });
 
-// Ajout de listener poour définir la température interieure ou exterieure à mettre en favori
-Array.from(document.querySelectorAll('section p img')).forEach(function (onglet) {
+
+// Listener pour définir la température interieure ou exterieure à mettre en favori
+// Change les valeurs de Min et de Max
+Array.from(document.querySelectorAll('section p img')).forEach(function(onglet) {
     onglet.addEventListener('click',
-        function (event) {
-            Array.from(document.querySelectorAll('.favori')).forEach(function (elem_active) {
+        function(event) {
+            Array.from(document.querySelectorAll('.favori')).forEach(function(elem_active) {
                 elem_active.removeAttribute('class');
                 elem_active.setAttribute('src', 'img/star-empty.png')
             });
@@ -95,38 +170,36 @@ function connectToCapteurs() {
 
 
     // Ajout d'un listener pour les possibles erreurs de la Websocket
-    socket.addEventListener('error', function (event) {
+    socket.addEventListener('error', function(event) {
         console.log("Problème de connection rencontré avec Websocket. Tentative de reconnection avec Fetch...");
 
         // On utilise alors la méthode Fetch
         fetch("https://hothothot.dog/api/capteurs?format=json", { method: "POST" })
             .then(response => {
                 if (response.ok) {
-                    return response.json();  // Convertion du message recu en JSON
+                    return response.json(); // Convertion du message recu en JSON
                 }
             })
-            .then(function (data) {
+            .then(function(data) {
                 console.log('Objet recu du serveur (Fetch) :', data);
-                try { getTemperature(data) }
-                catch (e) { console.log(e) }
+                try { getTemperature(data) } catch (e) { console.log(e) }
             })
             .catch((error) => console.log('Problème de connection rencontré avec Fetch'))
     });
 
 
     // Connection au server avec Websocket
-    socket.onopen = function (event) {
+    socket.onopen = function(event) {
         console.log("Connexion Websocket établie");
 
         // Envoi d'un message au serveur (obligatoire)
         socket.send("couscous");
-        socket.onmessage = function (msg) {
+        socket.onmessage = function(msg) {
             // Convertion du message recu en JSON
             var resultJson = JSON.parse(msg.data);
 
             console.log('Objet recu du serveur (Websocket) :', resultJson);
-            try { getTemperature(resultJson) }
-            catch (e) { console.log(e) }
+            try { getTemperature(resultJson) } catch (e) { console.log(e) }
         }
     }
 }
@@ -147,19 +220,19 @@ function localCacheTemp(temperatureIn, temperatureOut) {
 
     // Instanciation des variables de Date
     var today = new Date();
-    var yesterday = new Date().addHours(-1);
+    // var yesterday = new Date().addHours(-1);
 
-    // Enlèvement des valeurs que l'on veut pas
-    for (i = 0; i < Object.keys(tempIn['TEMP']).length; ++i) {
-        if (tempIn['TIME'][i] < yesterday) {
-            tempIn['TEMP'].pop(i);
-            tempIn['TIME'].pop(i);
-        }
-        if (tempOut['TIME'][i] < yesterday) {
-            tempOut['TEMP'].pop(i)
-            tempOut['TIME'].pop(i)
-        }
-    }
+    // // Enlèvement des valeurs que l'on veut pas
+    // for (var i = 0; i < Object.keys(tempIn['TEMP']).length; ++i) {
+    //     if (tempIn['TIME'][i] < yesterday) {
+    //         tempIn['TEMP'].pop(i);
+    //         tempIn['TIME'].pop(i);
+    //     }
+    //     if (tempOut['TIME'][i] < yesterday) {
+    //         tempOut['TEMP'].pop(i)
+    //         tempOut['TIME'].pop(i)
+    //     }
+    // }
 
     // Ajout de la nouvelle température dans l'array respectif
     tempIn['TEMP'].push(temperatureIn);
@@ -215,8 +288,7 @@ function setMinMax() {
     let temperature = JSON.parse(localStorage.getItem('TEMPERATURE'));
     if (document.getElementsByClassName('favori')[0].parentNode.id == 'p_in_temperature') {
         temperature = temperature['IN_TEMP'];
-    }
-    else {
+    } else {
         temperature = temperature['OUT_TEMP'];
     }
 
@@ -273,21 +345,17 @@ function getTemperature(dataJSON) {
 
     if (temperatureOut < 0) {
         allMsg.push('Banquise en vue !');
-    }
-    else if (35 < temperatureOut) {
+    } else if (35 < temperatureOut) {
         allMsg.push('Hot ! Hot ! Hot !');
     }
 
     if (temperatureIn < 0) {
         allMsg.push('Canalisations gelées, appelez SOS plombier et mettez un bonnet !');
-    }
-    else if (0 <= temperatureIn && temperatureIn < 12) {
+    } else if (0 <= temperatureIn && temperatureIn < 12) {
         allMsg.push('Montez le chauffage ou mettez un gros pull  !');
-    }
-    else if (22 < temperatureIn && temperatureIn <= 50) {
+    } else if (22 < temperatureIn && temperatureIn <= 50) {
         allMsg.push('Baissez le chauffage !');
-    }
-    else if (50 <= temperatureIn) {
+    } else if (50 <= temperatureIn) {
         allMsg.push('Appelez les pompiers ou arrêtez votre barbecue !');
     }
 
@@ -314,7 +382,7 @@ function getTemperature(dataJSON) {
 
 connectToCapteurs();
 initGraph();
-var interval = setInterval(function () {
+var interval = setInterval(function() {
     connectToCapteurs();
 }, 300000);
 
@@ -322,12 +390,6 @@ var interval = setInterval(function () {
 // ------------------------------------------------------------------ //
 // ------------------------------------------------------------------ //
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-        .register('/service-worker.js') // à adapter à l'URL du projet
-        .then(() => { console.log('Service Worker Registered'); })
-        .catch((error) => {console.log('Erreur : ' + error);});
-}
 
 
 
@@ -353,8 +415,8 @@ function alertNotification(text, temperature) {
 }
 
 var button = document.getElementById("notifications");
-button.addEventListener('click', function (e) {
-    Notification.requestPermission().then(function (result) {
+button.addEventListener('click', function(e) {
+    Notification.requestPermission().then(function(result) {
         if (result === 'granted') {
             alertNotification('test', 12.9)
         }
