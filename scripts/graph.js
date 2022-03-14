@@ -5,10 +5,10 @@
 // GRAPH-HISTORIQUE
 
 // Source : https://stackoverflow.com/questions/1050720/adding-hours-to-javascript-date-object
-// Date.prototype.addHours = function (h) {
-//     this.setTime(this.getTime() + (h * 60 * 60 * 1000));
-//     return this;
-// }
+Date.prototype.addHours = function (h) {
+    this.setTime(this.getTime() + (h * 60 * 60 * 1000));
+    return this;
+}
 
 //
 let graph;
