@@ -49,7 +49,7 @@ self.addEventListener('fetch', function(event) {
 // -----------------------------------------------
 // bouton d'installation
 let deferredPrompt;
-const addBtn = document.querySelector('.add-button');
+const addBtn = document.getElementById('add-button');
 addBtn.style.display = 'block';
 
 window.addEventListener('beforeinstallprompt', (e) => {
