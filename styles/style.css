@@ -1,0 +1,125 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Verdana, sans-serif;
+}
+
+li a {
+    text-decoration: none;
+}
+
+li {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#graph {
+    background-color: blanchedalmond;
+}
+
+#contentMinMax {
+    background-color: #406882;
+}
+
+#historique {
+    justify-content: center;
+    align-items: center;
+}
+
+#side-nav {
+    display: none;
+}
+
+/* ------------------------------------ */
+/* Style du content */
+#body-content {
+    background: rgb(31,31,37);
+    background: linear-gradient(120deg, rgba(31,31,37,1) 0%, rgba(83,83,94,1) 36%, rgba(141,144,148,1) 100%);
+}
+#content {
+    border-radius: 10px;
+}
+
+
+/* ------------------------------------ */
+/* Style du choix d'onglet */
+.onglet {
+    color: #f0f0f0;
+    font-weight: bold;
+
+    width: 50%;
+    height: 30px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+.onglet:hover {
+    color: white;
+}
+
+#onglet-ReelT {
+    background-color: #406882;
+    border-radius: 10px 0 0 0;
+}
+#onglet-ReelT:hover {
+    background-color: #6998AB;
+}
+
+#onglet-Hist {
+    background-color: #A2B29F;
+    border-radius: 0 10px 0 0;
+}
+#onglet-Hist:hover {
+    background-color: #BDD2B6;
+}
+
+/* ------------------------------------ */
+
+/*  Pour le changement d'onglet 
+    A voir pour le changer */
+section[role=tabpanel] {
+    display: none;
+}
+section[role=tabpanel].active {
+    display: flex;
+    flex-direction: column;
+
+}
+
+/* ------------------------------------ */
+/* Les étoiles du favori */
+
+/* ------------------------------------ */
+/* Changement de couleur suivant la température */
+#contentTemp section span {
+    font-size: 50px;
+    font-weight: bold;
+}
+.white {
+    color: white;
+}
+
+.blue {
+    color: blue;
+}
+
+.cyan {
+    color: cyan;
+}
+
+.orange {
+    color: orange;
+}
+
+.red {
+    color: red;
+}
+
+#ligne_modele {
+    visibility: hidden;
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="webmanifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="styles/style.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="styles/bootstrap.css">
+
+    <title>HotHotHot</title>
+
+    <!--Chart.js JS CDN-->
+    <script src="scripts/chart.js"></script>
+    <script src="scripts/chartDateAdaptater.js"></script>
+</head>
+
+<body>
+    <!-- Other Scripts -->
+    <script defer type="text/javascript" src="scripts/main.js"></script>
+    <script defer src="scripts/graph.js"></script>
+    <script defer type="text/javascript" src="service-worker.js"></script>
+
+    
+
+
+    <!-- Navigation -->
+    <nav>
+        <!-- Navigation : Header-bar -->
+        <ul class="position-fixed w-100 d-flex">
+            <li class="flex-sm-fill text-sm-center nav-item">
+                <img src="img/menu-bar.png" id="menu-icon" onclick="sideMenu()" width="20px" height="20px">
+            </li>
+            <li class="flex-sm-fill text-sm-center nav-item">
+                <button class="add-button">Install direct sinon consequence</button>
+            </li>
+            <li class="flex-sm-fill text-sm-center nav-item">
+                <button id="notifications">notification</button>
+            </li>
+            <li class="flex-sm-fill text-sm-center nav-item">
+                logo
+            </li>
+        </ul>
+
+        <!-- Navigation : Side-bar -->
+        <ul id="side-nav" class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Accueil</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="doc.html">Documentation</a>
+            </li>
+            <li class="nav-item">
+                Online
+            </li>
+        </ul>
+    </nav>
+    <!-- Fin de navigation -->
+
+
+
+    <div id="body-content" class="d-flex flex-column align-items-center justify-content-center h-100">
+        <div id="content" class="w-75 h-75">
+            <!-- Choix de l'onglet à afficher -->
+            <div id="nav-onglet" class="nav">
+                <ul role="tablist" class="d-flex w-100 m-0 p-0">
+                    <li role="tab" id="onglet-ReelT" class="onglet" value="reelTime">
+                        <span> EN TEMPS REEL </span>
+                    </li>
+                    <li role="tab" id="onglet-Hist" class="onglet" value="historique">
+                        <span> HISTORIQUE </span>
+                    </li>
+                </ul>
+            </div>
+
+
+            <!-- Affichage de la température en temps réel -->
+            <section role="tabpanel" id="reelTime" class="active">
+                <h3 id="titreTemp" class="text-center">Température en temps réel</h3>
+
+                <div id="contentTemp" class="d-flex flex-row justify-content-center">
+                    <section class="d-flex flex-column align-items-center w-25">
+                        <p id="p_in_temperature"> Température intérieure <img src="img/star.png" class="favori"
+                                width="20px" height="20px"></p>
+                        <span id="span_in_temperature"></span>
+                    </section>
+
+                    <section class="d-flex flex-column align-items-center w-25">
+                        <p id="p_out_temperature"> Température extérieure <img src="img/star-empty.png" width="20px"
+                                height="20px"></p>
+                        <span id="span_out_temperature"></span>
+                    </section>
+                </div>
+
+                <div id="contentAlert" class="d-flex flex-column">
+                    <template id="templateTest">
+                        <section class="text-center">
+                            <h4>/!\ Alerte !!</h4>
+                            <span></span>
+                        </section>
+                    </template>
+                </div>
+
+                <div id="contentMinMax" class="d-flex flex-row justify-content-center w-100">
+                    <section class="d-flex flex-column align-items-center w-50">
+                        <h5>Min</h5>
+                        <span id="span_min_temperature"></span>
+                    </section>
+                    <section class="d-flex flex-column align-items-center w-50">
+                        <h5>Max</h5>
+                        <span id="span_max_temperature"></span>
+                    </section>
+                </div>
+            </section>
+
+            <!-- Affichage des température sous forme de graphe -->
+            <section role="tabpanel" id="historique">
+                <h4 class="text-center">Tableau des anciennes température</h4>
+                <div id="graph" class="d-flex justify-content-center align-items-center w-75 h-75">
+                    <canvas id="myChart" width="100%" ></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
