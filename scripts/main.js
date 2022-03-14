@@ -45,60 +45,8 @@ var the_date = weekday + ' ' + today.toLocaleDateString("fr-FR", options);
 document.getElementById('titreTemp').innerText = the_date;
 
 
-
-// Définie une structure JSON vide, que l'on affecte au LocalStorage 'TEMPERATURE'
-function initLocalStorage() {
-    let structStorageJSON = {
-        'DATE': null,
-        'IN_TEMP': {
-            'MIN': null,
-            'MAX': null,
-            'TEMP': [],
-            'TIME': []
-        },
-        'OUT_TEMP': {
-            'MIN': null,
-            'MAX': null,
-            'TEMP': [],
-            'TIME': []
-        }
-    };
-    localStorage.setItem('TEMPERATURE', JSON.stringify(structStorageJSON));
-}
-
-// Fonctions implémentée
-function sideMenu() {
-    let sideNav = document.getElementById('side-nav');
-    if (sideNav.style.display == 'none') {
-        sideNav.style.display = 'block';
-    } else {
-        sideNav.style.display = 'none';
-    }
-}
-
-// -----------------------------------------------
-// Avoir le jour d'aujourd'hui
-// Source : https://stackoverflow.com/questions/58531156/javascript-how-to-format-the-date-according-to-the-french-convention
-var options = { year: 'numeric', month: 'long', day: 'numeric' };
-var opt_weekday = { weekday: 'long' };
-var today = new Date();
-var weekday = toTitleCase(today.toLocaleDateString("fr-FR", opt_weekday));
-
-function toTitleCase(str) {
-    return str.replace(
-        /\w\S*/g,
-        function(txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        }
-    );
-}
-var the_date = weekday + ' ' + today.toLocaleDateString("fr-FR", options);
-
-document.getElementById('titreTemp').innerText = the_date;
-
-
-// ------------------------------------------------------------------ //
-// ------------------------------------------------------------------ //
+// --------------------------------------------------------------------------------------------- //
+// --------------------------------------------------------------------------------------------- //
 // LISTENERS
 
 // Listener pour le changement d'onglet
@@ -150,21 +98,51 @@ Array.from(document.querySelectorAll('section p img')).forEach(function(onglet) 
     );
 });
 
-// -----------------------------------------------
 
+// --------------------------------------------------------------------------------------------- //
+// --------------------------------------------------------------------------------------------- //
+
+// Définie une structure JSON vide, que l'on affecte au LocalStorage 'TEMPERATURE'
+function initLocalStorage() {
+    let structStorageJSON = {
+        'DATE': null,
+        'IN_TEMP': {
+            'MIN': null,
+            'MAX': null,
+            'TEMP': [],
+            'TIME': []
+        },
+        'OUT_TEMP': {
+            'MIN': null,
+            'MAX': null,
+            'TEMP': [],
+            'TIME': []
+        }
+    };
+    localStorage.setItem('TEMPERATURE', JSON.stringify(structStorageJSON));
+}
+
+// Fonctions implémentée
+function sideMenu() {
+    let sideNav = document.getElementById('side-nav');
+    if (sideNav.style.display == 'none') {
+        sideNav.style.display = 'block';
+    } else {
+        sideNav.style.display = 'none';
+    }
+}
+
+// -----------------------------------------------
 
 // Une thes belle alerte alerte
 // window.alert("Va te faire enculé sale fils de pute");
-
-
-
 
 // ------------------------------------------------------------------ //
 // ------------------------------------------------------------------ //
 
 
 // WEBSOCKET
-function connectToCapteurs() {
+function connectToServeur() {
     // Initialisation de la Websocket
     const socket = new WebSocket('wss://ws.hothothot.dog:9502');
 
@@ -380,22 +358,13 @@ function getTemperature(dataJSON) {
 // ------------------------------------------------------------------ //
 
 
-connectToCapteurs();
+connectToServeur();
 initGraph();
 var interval = setInterval(function() {
-    connectToCapteurs();
+    connectToServeur();
 }, 300000);
 
 
-// ------------------------------------------------------------------ //
-// ------------------------------------------------------------------ //
-
-
-
-
-
-// ------------------------------------------------------------------ //
-// ------------------------------------------------------------------ //
 // ------------------------------------------------------------------ //
 // ------------------------------------------------------------------ //
 
@@ -423,35 +392,3 @@ button.addEventListener('click', function(e) {
     });
 });
 
-
-
-// -----------------------------------------------
-// bouton d'installation
-let deferredPrompt;
-const addBtn = document.getElementById('add-button');
-addBtn.style.display = 'block';
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt  
-    e.preventDefault();
-    // Stash the event so it can be triggered later.  
-    deferredPrompt = e;
-    // Update UI to notify the user they can add to home screen  
-    addBtn.style.display = 'block';
-
-    addBtn.addEventListener('click', (e) => {
-        // hide our user interface that shows our A2HS button  
-        addBtn.style.display = 'none';
-        // Show the prompt  
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt  
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the A2HS prompt');
-            } else {
-                console.log('User dismissed the A2HS prompt');
-            }
-            deferredPrompt = null;
-        });
-    });
-});
