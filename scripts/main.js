@@ -413,7 +413,7 @@ var interval = setInterval(function () {
 
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker
-        .register('../service-worker.js') // à adapter à l'URL du projet
+        .register('/service-worker.js') // à adapter à l'URL du projet
         .then(() => { console.log('Service Worker Registered'); });
 }
 
