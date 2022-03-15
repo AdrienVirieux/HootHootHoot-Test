@@ -1,4 +1,6 @@
 import { graph, initGraph, updateGraph } from './graph.js'
+import { connectToServeur } from './connect.js';
+import { initLocalStorage } from './storage.js';
 
 
 
@@ -25,6 +27,16 @@ console.log('historique :', temperatureLocalStorageJSON);
 
 // --------------------------------------------------------------------------------------------- //
 
+// Instanciation des balises SPAN utilisées pour l'affichage des températures actuel, ainsi que minimum et maximum
+const interiorDisplay = document.getElementById('span_in_temperature');
+const exteriorDisplay = document.getElementById('span_out_temperature');
+const spanMin = document.getElementById('span_min_temperature');
+const spanMax = document.getElementById('span_max_temperature');
+
+initDisplayValue();
+
+// --------------------------------------------------------------------------------------------- //
+
 // Avoir le jour d'aujourd'hui
 // Source : https://stackoverflow.com/questions/58531156/javascript-how-to-format-the-date-according-to-the-french-convention
 var options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -45,7 +57,6 @@ var the_date = weekday + ' ' + today.toLocaleDateString("fr-FR", options);
 document.getElementById('titreTemp').innerText = the_date;
 
 
-// --------------------------------------------------------------------------------------------- //
 // --------------------------------------------------------------------------------------------- //
 // LISTENERS
 
@@ -93,7 +104,7 @@ Array.from(document.querySelectorAll('section p img')).forEach(function(onglet) 
             });
             event.target.setAttribute('class', 'favori');
             event.target.setAttribute('src', 'img/star.png');
-            setMinMax();
+            setDisplayMinMax();
         }
     );
 });
@@ -102,25 +113,34 @@ Array.from(document.querySelectorAll('section p img')).forEach(function(onglet) 
 // --------------------------------------------------------------------------------------------- //
 // --------------------------------------------------------------------------------------------- //
 
-// Définie une structure JSON vide, que l'on affecte au LocalStorage 'TEMPERATURE'
-function initLocalStorage() {
-    let structStorageJSON = {
-        'DATE': null,
-        'IN_TEMP': {
-            'MIN': null,
-            'MAX': null,
-            'TEMP': [],
-            'TIME': []
-        },
-        'OUT_TEMP': {
-            'MIN': null,
-            'MAX': null,
-            'TEMP': [],
-            'TIME': []
-        }
-    };
-    localStorage.setItem('TEMPERATURE', JSON.stringify(structStorageJSON));
+// Initialise l'affichage des valeurs lors que l'on refresh la page
+function initDisplayValue() {
+    let lastIndex = Object.keys(temperatureLocalStorageJSON['IN_TEMP']['TEMP']).length - 1;
+    let lastTemperatureIn = temperatureLocalStorageJSON['IN_TEMP']['TEMP'][lastIndex];
+    let lastTemperatureOut = temperatureLocalStorageJSON['OUT_TEMP']['TEMP'][lastIndex];
+
+    // Insertion des temperatures
+    interiorDisplay.innerText = lastTemperatureIn + '°C';
+    exteriorDisplay.innerText = lastTemperatureOut + '°C';
+
+    //
+    setDisplayMinMax();
 }
+
+
+//
+function setDisplayMinMax() {
+    let temperature = temperatureLocalStorageJSON;
+    if (document.getElementsByClassName('favori')[0].parentNode.id == 'p_in_temperature') {
+        temperature = temperature['IN_TEMP'];
+    } else {
+        temperature = temperature['OUT_TEMP'];
+    }
+
+    spanMin.innerText = temperature['MIN'];
+    spanMax.innerText = temperature['MAX'];
+}
+
 
 // Fonctions implémentée
 function sideMenu() {
@@ -141,53 +161,11 @@ function sideMenu() {
 // ------------------------------------------------------------------ //
 
 
-// WEBSOCKET
-function connectToServeur() {
-    // Initialisation de la Websocket
-    const socket = new WebSocket('wss://ws.hothothot.dog:9502');
 
-
-    // Ajout d'un listener pour les possibles erreurs de la Websocket
-    socket.addEventListener('error', function(event) {
-        console.log("Problème de connection rencontré avec Websocket. Tentative de reconnection avec Fetch...");
-
-        // On utilise alors la méthode Fetch
-        fetch("https://hothothot.dog/api/capteurs?format=json", { method: "POST" })
-            .then(response => {
-                if (response.ok) {
-                    return response.json(); // Convertion du message recu en JSON
-                }
-            })
-            .then(function(data) {
-                console.log('Objet recu du serveur (Fetch) :', data);
-                try { getTemperature(data) } catch (e) { console.log(e) }
-            })
-            .catch((error) => console.log('Problème de connection rencontré avec Fetch'))
-    });
-
-
-    // Connection au server avec Websocket
-    socket.onopen = function(event) {
-        console.log("Connexion Websocket établie");
-
-        // Envoi d'un message au serveur (obligatoire)
-        socket.send("couscous");
-        socket.onmessage = function(msg) {
-            // Convertion du message recu en JSON
-            var resultJson = JSON.parse(msg.data);
-
-            console.log('Objet recu du serveur (Websocket) :', resultJson);
-            try { getTemperature(resultJson) } catch (e) { console.log(e) }
-        }
-    }
-}
 
 
 // ------------------------------------------------------------------ //
 // ------------------------------------------------------------------ //
-
-// Initialisation du localStorage
-// TODO a revoir car perte de données
 
 
 // Ajoute les valeurs du serveur recu dans le localStorage
@@ -257,22 +235,7 @@ function removeTempStorage() {
 
 
 // -----------------------------------------------
-//
-const spanMin = document.getElementById('span_min_temperature');
-const spanMax = document.getElementById('span_max_temperature');
 
-//
-function setMinMax() {
-    let temperature = JSON.parse(localStorage.getItem('TEMPERATURE'));
-    if (document.getElementsByClassName('favori')[0].parentNode.id == 'p_in_temperature') {
-        temperature = temperature['IN_TEMP'];
-    } else {
-        temperature = temperature['OUT_TEMP'];
-    }
-
-    spanMin.innerText = temperature['MIN'];
-    spanMax.innerText = temperature['MAX'];
-}
 
 
 // -----------------------------------------------
@@ -282,7 +245,7 @@ var span_out_temperature = document.getElementById('span_out_temperature');
 let content = document.querySelector('template').content;
 
 //
-function getTemperature(dataJSON) {
+export function getTemperature(dataJSON) {
     let temperatureIn = dataJSON["capteurs"]["0"]["Valeur"];
     let temperatureOut = dataJSON["capteurs"]["1"]["Valeur"];
 
@@ -313,8 +276,7 @@ function getTemperature(dataJSON) {
     span_in_temperature.setAttribute("class", color);
     span_in_temperature.innerText = temperatureIn;
 
-
-    setMinMax();
+    setDisplayMinMax();
 
     updateGraph();
 
@@ -392,3 +354,33 @@ button.addEventListener('click', function(e) {
     });
 });
 
+// -----------------------------------------------
+// bouton d'installation
+let deferredPrompt;
+const addBtn = document.getElementById('add-button');
+addBtn.style.display = 'block';
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt  
+    e.preventDefault();
+    // Stash the event so it can be triggered later.  
+    deferredPrompt = e;
+    // Update UI to notify the user they can add to home screen  
+    addBtn.style.display = 'block';
+
+    addBtn.addEventListener('click', (e) => {
+        // hide our user interface that shows our A2HS button  
+        addBtn.style.display = 'none';
+        // Show the prompt  
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt  
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the A2HS prompt');
+            } else {
+                console.log('User dismissed the A2HS prompt');
+            }
+            deferredPrompt = null;
+        });
+    });
+});

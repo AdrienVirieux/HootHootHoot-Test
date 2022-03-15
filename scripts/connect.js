@@ -1,45 +1,43 @@
-// https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-//
-// On renvoie un nombre aléatoire entre une valeur min (incluse)
-// et une valeur max (exclue)
-function getRandomArbitrary(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-}
+import { getTemperature } from "./main";
 
-function getRandomText() {
-    let array_text = [
-        "John a publié un nouvel article",
-        "Elisabeth a modifié un article existant",
-        "Tom a posté un nouveau commentaire",
-        "Léa a modifié un commentaire existant"
-    ];
 
-    let int_index = getRandomArbitrary(0, 4);
+// WEBSOCKET
+export function connectToServeur() {
+    // Initialisation de la Websocket
+    const socket = new WebSocket('wss://ws.hothothot.dog:9502');
 
-    return array_text[int_index];
-}
 
-var obj_the_table = document.getElementById("the-table");
+    // Ajout d'un listener pour les possibles erreurs de la Websocket
+    socket.addEventListener('error', function(event) {
+        console.log("Problème de connection rencontré avec Websocket. Tentative de reconnection avec Fetch...");
 
-var int_interval = setInterval(function () {
+        // On utilise alors la méthode Fetch
+        fetch("https://hothothot.dog/api/capteurs?format=json", { method: "POST" })
+            .then(response => {
+                if (response.ok) {
+                    return response.json(); // Convertion du message recu en JSON
+                }
+            })
+            .then(function(data) {
+                console.log('Objet recu du serveur (Fetch) :', data);
+                try { getTemperature(data) } catch (e) { console.log(e) }
+            })
+            .catch((error) => console.log('Problème de connection rencontré avec Fetch'))
+    });
 
-    if (Array.from(obj_the_table.tBodies.item(0).rows).length < 10) {
-        let template = document.getElementById("row-to-be-cloned");
-        let obj_cloned_row = document.importNode(template.content, true);
-        let cells = obj_cloned_row.querySelectorAll("td");
-        cells[0].innerText = new Date().toLocaleString();
-        cells[1].innerText = getRandomText();
 
-        // let obj_cloned_row = document.importNode(template.content, true).querySelector('tr');
-        // obj_cloned_row.cells[0].innerText = new Date().toLocaleString();
-        // obj_cloned_row.cells[1].innerText = getRandomText();
+    // Connection au server avec Websocket
+    socket.onopen = function(event) {
+        console.log("Connexion Websocket établie");
 
-        obj_the_table.tBodies[0].append(obj_cloned_row);
+        // Envoi d'un message au serveur (obligatoire)
+        socket.send("couscous");
+        socket.onmessage = function(msg) {
+            // Convertion du message recu en JSON
+            var resultJson = JSON.parse(msg.data);
 
+            console.log('Objet recu du serveur (Websocket) :', resultJson);
+            try { getTemperature(resultJson) } catch (e) { console.log(e) }
+        }
     }
-    else {
-
-        clearInterval(int_interval);
-    }
-
-}, 2000);
+}
