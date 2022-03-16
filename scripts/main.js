@@ -234,6 +234,7 @@ var interval = setInterval(function() {
 var span_in_temperature = document.getElementById('span_in_temperature');
 var span_out_temperature = document.getElementById('span_out_temperature');
 let content = document.querySelector('template').content;
+let graph;
 
 // WEBSOCKET
 function connectToServeur() {
@@ -448,8 +449,6 @@ function removeTempStorage() {
 // --------------------------------------------------------------------------------------------- //
 // GRAPH-HISTORIQUE
 
-
-let graph;
 
 // Source : https://stackoverflow.com/questions/1050720/adding-hours-to-javascript-date-object
 Date.prototype.addHours = function (h) {
