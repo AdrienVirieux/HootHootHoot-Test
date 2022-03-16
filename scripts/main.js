@@ -461,7 +461,7 @@ function initGraph() {
     let date = new Date();
 
     // Initialisation d'une base d'un graphe
-    graph = new Chart(document.getElementById("myChart"), {
+    let graph = new Chart(document.getElementById("myChart"), {
         type: 'scatter',
         data: {
             datasets: [{
