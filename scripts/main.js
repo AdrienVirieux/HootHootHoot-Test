@@ -217,7 +217,10 @@ function sideMenu() {
 // --------------------------------------------------------------------------------------------- //
 
 
-
+var span_in_temperature = document.getElementById('span_in_temperature');
+var span_out_temperature = document.getElementById('span_out_temperature');
+let content = document.querySelector('template').content;
+let graph;
 
 connectToServeur();
 initGraph();
@@ -231,10 +234,7 @@ var interval = setInterval(function() {
 // --------------------------------------------------------------------------------------------- //
 // --------------------------------------------------------------------------------------------- //
 
-var span_in_temperature = document.getElementById('span_in_temperature');
-var span_out_temperature = document.getElementById('span_out_temperature');
-let content = document.querySelector('template').content;
-let graph;
+
 
 // WEBSOCKET
 function connectToServeur() {
@@ -461,7 +461,7 @@ function initGraph() {
     let date = new Date();
 
     // Initialisation d'une base d'un graphe
-    let graph = new Chart(document.getElementById("myChart"), {
+    graph = new Chart(document.getElementById("myChart"), {
         type: 'scatter',
         data: {
             datasets: [{
