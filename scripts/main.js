@@ -231,7 +231,9 @@ var interval = setInterval(function() {
 // --------------------------------------------------------------------------------------------- //
 // --------------------------------------------------------------------------------------------- //
 
-
+var span_in_temperature = document.getElementById('span_in_temperature');
+var span_out_temperature = document.getElementById('span_out_temperature');
+let content = document.querySelector('template').content;
 
 // WEBSOCKET
 function connectToServeur() {
@@ -274,10 +276,6 @@ function connectToServeur() {
     }
 }
 
-
-var span_in_temperature = document.getElementById('span_in_temperature');
-var span_out_temperature = document.getElementById('span_out_temperature');
-let content = document.querySelector('template').content;
 
 //
 function getTemperature(dataJSON) {
@@ -461,7 +459,7 @@ Date.prototype.addHours = function (h) {
 
 //
 function initGraph() {
-    let date = new Date().addHours(-24);
+    let date = new Date();
 
     // Initialisation d'une base d'un graphe
     graph = new Chart(document.getElementById("myChart"), {
