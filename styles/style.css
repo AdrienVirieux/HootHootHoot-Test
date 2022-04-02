@@ -1,5 +1,4 @@
-html,
-body {
+html, body {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -16,12 +15,17 @@ li {
     margin: 0;
 }
 
-#graph {
-    background-color: blanchedalmond;
+#myChart {
+    pointer-events: none;
 }
 
-#contentMinMax {
-    background-color: #406882;
+#chartAreaWrapper {
+    width: 100%;
+}
+
+#chartWrapper {
+    width: 100%;
+    height: 100%;
 }
 
 #historique {
@@ -35,122 +39,67 @@ li {
 
 
 /* ------------------------------------ */
+/* CSS de la boite de content */
 
-
-/* Style du content */
-
+/* Arrière plan */
 #body-content {
     background: rgb(31, 31, 37);
     background: linear-gradient(120deg, rgba(31, 31, 37, 1) 0%, rgba(83, 83, 94, 1) 36%, rgba(141, 144, 148, 1) 100%);
+    z-index: 1;
 }
 
+/* Content box / Onglet */
 #content {
     border-radius: 0 0 15px 15px;
     height: 60%;
-}
-
-/* ------------------------------------ */
-.onglet-actif::before {
     background-color: #6998AB;
+    padding: 5%;
 }
+
 /* ------------------------------------ */
-
-/* Style du choix d'onglet */
-
+/* CSS des boutons de choix d'onglet */
 #onglet-ReelT,#onglet-Hist {
     color: #f0f0f0;
     font-weight: bold;
+
     width: 50%;
     height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-}
 
-#onglet-ReelT:hover, #onglet-Hist:hover {
-    color: white;
-}
-
-#onglet-ReelT {
     align-self: flex-end;
-    
     display: flex;
     justify-content: left;
+    align-items: center;
+    text-align: center;
 
-    background-color: #406882;
+    cursor: pointer;
     border-radius: 15px 15px 0 0;
     transition: height 0.2s;
 }
-#onglet-ReelT:hover {
-    background-color: #6998AB;
+#onglet-ReelT { background-color: #406882;}
+#onglet-Hist {background-color: #A2B29F;}
+
+
+#onglet-ReelT:hover, #onglet-Hist:hover, #onglet-ReelT.onglet-actif, #onglet-Hist.onglet-actif {
     height: 100%;
+    color: white;
 }
-#onglet-ReelT span {
+#onglet-ReelT:hover, #onglet-ReelT.onglet-actif{background-color: #6998AB;}
+#onglet-Hist:hover, #onglet-Hist.onglet-actif{background-color: #BDD2B6;}
+
+
+#onglet-ReelT span, #onglet-Hist span {
     flex-grow: 1;
     flex-shrink: 0;
     margin-left: 20px;
 }
-
-#onglet-Hist {
-    align-self: flex-end;
-
-    display: flex;
-    justify-content: left;
-
-    background-color: #A2B29F;
-    border-radius: 15px 15px 0 0;
-    transition: height 0.2s;
-}
-#onglet-Hist:hover {
-    background-color: #BDD2B6;
-    height: 100%;
-}
-#onglet-Hist span {
-    flex-grow: 1;
-    flex-shrink: 0;
-    margin-right: 20px;
-}
+/* ------------------------------------ */
 
 #nav-onglet {
     height: 5%;
+    min-height: 50px;
 }
 
 /* ------------------------------------ */
-#curved-corner-bottomright {
-    display: none;
-}
-
-#curved-corner-bottomleft, #curved-corner-bottomright {
-    width: 10px;
-    height: 10px;
-    overflow: hidden;
-    position: relative;
-    align-self: flex-end;
-    align-items: center;   
-}
-#curved-corner-bottomleft:before, #curved-corner-bottomright:before {
-    content: "";
-    display: block;
-    width: 200%;
-    height: 200%;
-    position: absolute;
-    border-radius: 50%;
-    bottom: 0;
-}
-
-#curved-corner-bottomleft:before {
-    left: 0;
-    box-shadow: -10px 10px 0 0 #6998AB;
-}
-#curved-corner-bottomright:before {
-    right: 0;
-    box-shadow: 10px 10px 0 0 #BDD2B6;
-}
-
-/* ------------------------------------ */
-
 
 /*  Pour le changement d'onglet 
     A voir pour le changer */
@@ -203,4 +152,43 @@ section[role=tabpanel].active {
 
 #ligne_modele {
     visibility: hidden;
+}
+
+
+/* ------------------------------------ */
+
+#login-background {
+    background-color: rgba(21, 21, 23, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 0 25% 0 25%;
+
+    position: absolute;
+    top: 0;
+    z-index: 9999;
+
+    animation-duration: 1s;
+    animation-name: lineInserted;
+    transition: height 1s;
+}
+
+@keyframes lineInserted {
+    from {
+        padding: 0 25% 0 25%;
+        height: 0;
+    }
+    to {
+        padding: 0 25% 0 25%;
+        height: 100%;
+    }
+  }
+
+#login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: white;
 }
